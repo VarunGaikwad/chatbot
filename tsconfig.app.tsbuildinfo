@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/chatbody.tsx","./src/footer.tsx","./src/header.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/hook/usemodel.ts","./src/interface/common.ts","./src/model/chatmodel.tsx","./src/model/context.ts","./src/util/gemini.ts"],"version":"5.7.2"}
