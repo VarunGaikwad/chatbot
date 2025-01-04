@@ -30,7 +30,7 @@ export default function Chatbody() {
               type === "ai" ? "justify-start" : "justify-end"
             }`}
           >
-            <p className="w-fit bg-gray-900 p-2 px-6 rounded-2xl">{message}</p>
+            <p className={`w-fit ${type === "user" ? "bg-gray-900" : ""} p-2 px-6 rounded-2xl`}>{message}</p>
           </div>
         ))}
       </div>

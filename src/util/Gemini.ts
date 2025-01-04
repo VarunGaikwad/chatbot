@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const apiKey = process.env.VITE_GEMINI_API_KEY!,
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY!,
   config = {
     temperature: 1,
     topP: 0.95,

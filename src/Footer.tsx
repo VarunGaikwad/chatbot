@@ -2,10 +2,13 @@ import { FaMicrophone } from "react-icons/fa";
 import { RiImageAddFill } from "react-icons/ri";
 import { IoSend } from "react-icons/io5";
 import { useState } from "react";
+import { _GenerateText } from "./util/Gemini";
+import { useModel } from "./hook/useModel";
 
 const fixedHeight = 24;
 
 export default function Footer() {
+  const { setModel } = useModel();
   const [isSendVisible, setIsSendVisible] = useState(false);
   const [input, setInput] = useState("");
   const onInputChange = ({
@@ -24,11 +27,10 @@ export default function Footer() {
     }
   };
 
-  const onMicrophoneClick = () => {};
+  const onMicrophoneClick = () => { };
   const onSendClick = (event: React.FormEvent) => {
     event.preventDefault();
-    alert(input);
-    setInput("");
+    _GenerateText(input).then((res) => setModel(prev => ({ ...prev, response: res }))).catch((err) => console.error(err)).finally(() => setInput(""));
   };
 
   const onImageAttachmentClick = () => {
