@@ -18,3 +18,23 @@ body {
 ::-webkit-scrollbar-thumb {
   @apply bg-white rounded-full;
 }
+
+.prose p {
+  @apply my-2;
+}
+
+.prose ul {
+  list-style-type: square;
+}
+
+.prose ul ul {
+  list-style-type: disc;
+}
+
+.prose ul li {
+  @apply pl-5;
+}
+
+.prose ul ul li {
+  @apply pl-10;
+}

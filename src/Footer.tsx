@@ -1,13 +1,15 @@
 import { FaMicrophone } from "react-icons/fa";
 import { RiImageAddFill } from "react-icons/ri";
 import { IoSend } from "react-icons/io5";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { _GenerateText } from "./util/Gemini";
 import { useModel } from "./hook/useModel";
+import { ConversationT } from "./interface/common";
 
 const fixedHeight = 24;
 
 export default function Footer() {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { setModel } = useModel();
   const [isSendVisible, setIsSendVisible] = useState(false);
   const [input, setInput] = useState("");
@@ -27,10 +29,67 @@ export default function Footer() {
     }
   };
 
-  const onMicrophoneClick = () => { };
-  const onSendClick = (event: React.FormEvent) => {
+  const onMicrophoneClick = () => {};
+
+  const onSendClick = async (event: React.FormEvent) => {
     event.preventDefault();
-    _GenerateText(input).then((res) => setModel(prev => ({ ...prev, response: res }))).catch((err) => console.error(err)).finally(() => setInput(""));
+
+    setModel((prev) => ({
+      ...prev,
+      conversation: [
+        ...prev.conversation,
+        { id: Date.now(), type: "user", message: input },
+      ],
+    }));
+
+    try {
+      const responseStream = await _GenerateText(input);
+
+      let accumulatedResponse = "";
+      let lastMessageId: number | null = null;
+
+      while (true) {
+        const { value, done } = await responseStream.next();
+        if (done) break;
+
+        const textChunk = value?.candidates?.[0]?.content.parts
+          .map(({ text }) => text)
+          .join(" ");
+
+        if (textChunk) {
+          accumulatedResponse += textChunk;
+
+          setModel((prev) => {
+            const updatedConversation = [...prev.conversation];
+            if (lastMessageId) {
+              const lastAiMessageIndex = updatedConversation.findIndex(
+                (msg) => msg.id === lastMessageId
+              );
+              if (lastAiMessageIndex !== -1) {
+                updatedConversation[lastAiMessageIndex].message =
+                  accumulatedResponse;
+              }
+            } else {
+              const newMessage = {
+                id: Date.now(),
+                type: "ai",
+                message: accumulatedResponse,
+              } as ConversationT;
+              lastMessageId = newMessage.id;
+              updatedConversation.push(newMessage);
+            }
+            return { ...prev, conversation: updatedConversation };
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Error during streaming:", err);
+    } finally {
+      setInput("");
+      if (textareaRef.current && textareaRef.current.rows > 1) {
+        textareaRef.current.rows = 1;
+      }
+    }
   };
 
   const onImageAttachmentClick = () => {
@@ -52,6 +111,7 @@ export default function Footer() {
           className="cursor-pointer"
         />
         <textarea
+          ref={textareaRef}
           value={input}
           onInput={onInputChange}
           onKeyPress={onKeyPress}
