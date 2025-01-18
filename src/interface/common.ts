@@ -12,3 +12,8 @@ export interface ConversationT {
   type: "ai" | "user" | "error";
   message: string;
 }
+
+export interface GeminiHistoryT {
+  role: "ai" | "user";
+  parts: string[];
+}
