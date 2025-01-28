@@ -2,7 +2,7 @@ import { FaMicrophone } from "react-icons/fa";
 import { RiImageAddFill } from "react-icons/ri";
 import { IoSend } from "react-icons/io5";
 import { useRef, useState } from "react";
-import { _GenerateText } from "./util/Gemini";
+import { _AddHistory, _GenerateText } from "./util/Gemini";
 import { useModel } from "./hook/useModel";
 import { ConversationT } from "./interface/common";
 
@@ -57,8 +57,8 @@ export default function Footer() {
           .join(" ");
 
         if (textChunk) {
+          _AddHistory(textChunk);
           accumulatedResponse += textChunk;
-
           setModel((prev) => {
             const updatedConversation = [...prev.conversation];
             if (lastMessageId) {

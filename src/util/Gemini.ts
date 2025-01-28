@@ -1,7 +1,6 @@
 import {
   ChatSession,
   Content,
-  EnhancedGenerateContentResponse,
   GoogleGenerativeAI,
 } from "@google/generative-ai";
 
@@ -24,31 +23,15 @@ let chatSession: ChatSession | null = null;
 
 const history: Content[] = [];
 
-async function _AddHistory(
-  responseStream: AsyncGenerator<EnhancedGenerateContentResponse, void, unknown>
-) {
-  let accumulatedResponse = "";
-
-  while (true) {
-    const { value, done } = await responseStream.next();
-    if (done) break;
-
-    const textChunk = value?.candidates?.[0]?.content.parts
-      .map(({ text }) => text)
-      .join(" ");
-
-    if (textChunk) {
-      accumulatedResponse += textChunk;
-      const lastHistory = history.at(-1);
-      if (lastHistory?.role === "user") {
-        history.push({
-          role: "model",
-          parts: [{ text: accumulatedResponse }],
-        });
-      } else if (lastHistory?.role === "model") {
-        lastHistory.parts = [{ text: accumulatedResponse }];
-      }
-    }
+export function _AddHistory(text: string) {
+  const lastHistory = history.at(-1);
+  if (lastHistory?.role === "user") {
+    history.push({
+      role: "model",
+      parts: [{ text: text }],
+    });
+  } else if (lastHistory?.role === "model") {
+    lastHistory.parts = [{ text: text }];
   }
 }
 
@@ -67,7 +50,7 @@ export async function _GenerateText(prompt: string) {
     }
 
     const responseStream = await chatSession.sendMessageStream(prompt);
-    _AddHistory(responseStream.stream);
+
     return responseStream.stream;
   } catch (error) {
     console.error("Error:", error);
