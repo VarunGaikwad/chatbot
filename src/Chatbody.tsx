@@ -18,7 +18,7 @@ export default function Chatbody() {
   if (!messages.length)
     return (
       <div className="flex-1 flex justify-center items-center text-5xl">
-        Hello, Varun
+        Hello, My name is PreApeXis
       </div>
     );
 
